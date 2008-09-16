@@ -1,0 +1,48 @@
+# Avoid build files
+^lib/Language/P/Keywords.pm$
+
+# Avoid version control files.
+\bRCS\b
+\bCVS\b
+,v$
+\B\.svn\b
+\B\.cvsignore$
+\B\.gitignore$
+\B\.git\b
+^t/perl5/
+
+# Avoid Makemaker generated and utility files.
+\bMakefile$
+\bblib
+\bMakeMaker-\d
+\bpm_to_blib$
+\bblibdirs$
+
+# Avoid Module::Build generated and utility files.
+\bBuild$
+\bBuild.bat$
+\b_build
+
+# Avoid Devel::Cover/NYTProf generated files
+\bcover_db
+\bnytprof
+
+# Avoid temp and backup files.
+~$
+\.tmp$
+\.old$
+\.bak$
+\#$
+\.#
+\.rej$
+
+# Emacs tags
+^TAGS$
+
+# Avoid OS-specific files/dirs
+#   Mac OSX metadata
+\B\.DS_Store
+#   Mac OSX SMB mount metadata files
+\B\._
+# Avoid archives of this distribution
+\bLanguage-P-[\d\.\_]+

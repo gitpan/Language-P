@@ -1,0 +1,170 @@
+---
+name: Language-P
+version: 0.01_01
+author:
+  - 'Mattia Barbon <mbarbon@cpan.org>'
+abstract: parsing/compiling Perl5 code using Perl5
+license: perl
+resources:
+  license: http://dev.perl.org/licenses/
+requires:
+  Class::Accessor: 0.30
+  Exporter: 5.58
+  Module::Build: 0.28
+  TAP::Harness: 3.10
+  Test::Differences: 0.47
+  perl: 5.8.3
+provides:
+  Language::P:
+    file: lib/Language/P.pm
+    version: 0.01_01
+  Language::P::Lexer:
+    file: lib/Language/P/Lexer.pm
+  Language::P::ParseTree:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::BinOp:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Block:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Builtin:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::BuiltinIndirect:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Conditional:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::ConditionalBlock:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::ConditionalLoop:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Constant:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Dereference:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::DumpYAML:
+    file: lib/Language/P/ParseTree/DumpYAML.pm
+  Language::P::ParseTree::For:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Foreach:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::FunctionCall:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Glob:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Identifier:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::InterpolatedPattern:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::LexicalDeclaration:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::LexicalSymbol:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::List:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::MethodCall:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Node:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Overridable:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Package:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Parentheses:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Pattern:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::PropagateContext:
+    file: lib/Language/P/ParseTree/PropagateContext.pm
+  Language::P::ParseTree::QuotedString:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::RXAlternation:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::RXAssertion:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::RXClass:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::RXGroup:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::RXQuantifier:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::RXRange:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::RXSpecialClass:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::ReferenceConstructor:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Slice:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::SpecialFunctionCall:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Subroutine:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::SubroutineDeclaration:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Subscript:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Substitution:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Symbol:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Ternary:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::UnOp:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Visitor:
+    file: lib/Language/P/ParseTree/Visitor.pm
+  Language::P::Parser:
+    file: lib/Language/P/Parser.pm
+  Language::P::Parser::Lexicals:
+    file: lib/Language/P/Parser/Lexicals.pm
+  Language::P::Parser::Regex:
+    file: lib/Language/P/Parser/Regex.pm
+  Language::P::Toy::Generator:
+    file: lib/Language/P/Toy/Generator.pm
+  Language::P::Toy::Opcodes:
+    file: lib/Language/P/Toy/Opcodes.pm
+  Language::P::Toy::Opcodes::Regex:
+    file: lib/Language/P/Toy/Opcodes/Regex.pm
+  Language::P::Toy::Runtime:
+    file: lib/Language/P/Toy/Runtime.pm
+  Language::P::Toy::Value::ActiveScalar:
+    file: lib/Language/P/Toy/Value/ActiveScalar.pm
+  Language::P::Toy::Value::ActiveScalarCallbacks:
+    file: lib/Language/P/Toy/Value/ActiveScalar.pm
+  Language::P::Toy::Value::Any:
+    file: lib/Language/P/Toy/Value/Any.pm
+  Language::P::Toy::Value::Array:
+    file: lib/Language/P/Toy/Value/Array.pm
+  Language::P::Toy::Value::Array::Iterator:
+    file: lib/Language/P/Toy/Value/Array.pm
+  Language::P::Toy::Value::Code:
+    file: lib/Language/P/Toy/Value/Code.pm
+  Language::P::Toy::Value::Handle:
+    file: lib/Language/P/Toy/Value/Handle.pm
+  Language::P::Toy::Value::List:
+    file: lib/Language/P/Toy/Value/List.pm
+  Language::P::Toy::Value::MainSymbolTable:
+    file: lib/Language/P/Toy/Value/MainSymbolTable.pm
+  Language::P::Toy::Value::Reference:
+    file: lib/Language/P/Toy/Value/Reference.pm
+  Language::P::Toy::Value::Regex:
+    file: lib/Language/P/Toy/Value/Regex.pm
+  Language::P::Toy::Value::Scalar:
+    file: lib/Language/P/Toy/Value/Scalar.pm
+  Language::P::Toy::Value::ScratchPad:
+    file: lib/Language/P/Toy/Value/ScratchPad.pm
+  Language::P::Toy::Value::StringNumber:
+    file: lib/Language/P/Toy/Value/StringNumber.pm
+  Language::P::Toy::Value::Subroutine:
+    file: lib/Language/P/Toy/Value/Subroutine.pm
+  Language::P::Toy::Value::Subroutine::Stub:
+    file: lib/Language/P/Toy/Value/Subroutine.pm
+  Language::P::Toy::Value::SymbolTable:
+    file: lib/Language/P/Toy/Value/SymbolTable.pm
+  Language::P::Toy::Value::Typeglob:
+    file: lib/Language/P/Toy/Value/Typeglob.pm
+  Language::P::Toy::Value::Typeglob::Body:
+    file: lib/Language/P/Toy/Value/Typeglob.pm
+generated_by: Module::Build version 0.2808
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.2.html
+  version: 1.2

@@ -1,0 +1,104 @@
+Parsing:
+- scalar/array/void context
+  - prototypes
+  - splice/substr/lvalue subroutines
+- filetest
+  - after filetest, foo and _ are not barewords
+  - parse using normal parsing for named unary operators,
+    and add parsing prototype
+- stashes
+- global variables/symbols (STDOUT!)
+- local variables
+- scoping
+- do ...
+- labels
+- formats
+- add operator descriptor and do parse tree modifications
+  - like: defined &foo; pipe X, Y; etc.
+- indirect method calls
+  - find more corner cases
+- list slices ( ... )[ ... ]
+- test all unary/binary operator
+- anonymous sub
+- subroutine prototypes
+  - declaration
+  - parsing
+    - & as first parameter permits either:
+      mymap { ... } 1, 2, 3
+      mymap sub { ... }, 1, 2, 3
+      myeval { ... }, 1 == myeval( sub { ... } ), 1
+- local()
+- implicit $_ in various builtins
+- parsing of loop + continue
+- scope handling of conditional/while/continue
+- handling of parse errors with recovery
+- lexical pragmas/hints
+  - strictures
+- proper lexing of ${  id # comment\n } vs. ${ id # comment \n expr }
+- more tests for ${foo[.......} crazy cases
+- proper check for overridable builtins (only if imported)
+- builtins overridable using CORE::GLOBAL
+- CORE::builtin to always call builtin
+- special treatment for glob()
+- simplify detection of <foo> vs. <foo >, avoid constructing a lexer
+- packages
+  - add subpackages to runtime
+  - when searching prototypes/definitions/variables at parse time,
+    use the correct package name
+  - package handling in our()
+- parsing of nullary/unary vs. list operators
+- => auto-quoting
+  - => quoting of -foo => 1
+- quoted strings
+  - \Q\L\U\E in quoted strings/patterns
+  - \xaf, \011,etc when lexing quoted strings
+- regexp
+  - char classes
+    - [a-\w] is not a range
+    - [a-] is not a range
+    - [[] is a "["
+    - ^ negation
+  - other metacharacters
+  - backreferences, also in substitution
+  - magic variables
+  - (?...) syntax and grouping
+  - empty pattern
+  - flags
+  - context-dependent bexaviour
+  - always a pattern after =~/!~
+  - tr/// lexing/parsing
+- correct parsing of heredoc in substitutions (s//<<HEREDOC/e)
+
+Runtime:
+- integer -> float on overflow (also in parsing!)
+- proper scalar polimorphing
+  - mixed-mode arithmetic
+- proper handling of function return values
+  - implicit return
+  - context
+- encapsulate lexical lookup/closure
+- better handling of sub calls
+  - encapsulate enter/leave
+- proper morphing on scalar assignment
+- autovivification
+- create common superclass for reference/scalar
+- multiple dispatch operators
+- array/list/hash assignment
+  - optimize lists with common assignments
+  - check mixed assignments
+- garbage collection
+- do file/require/use/eval string
+
+Refactoring:
+- check offsets for call sequence, refactor stack handling
+- proper handling of bytecode
+- replace all strings with integer constants/flags
+  - move information about bultins/overridables to a separate module
+    (currently in both lexer and parse-tree)
+- rewrite lexer to use /\G.../g instead of s///
+  - assert unlexed tokens are relexed with the correct expectations
+  - assert lex_string/lex unlex buffers do not intermingle
+- make regexp parser a full blown parser, not the hack it is;
+  add a lexer subclass for parsing patterns
+- detect builtins that could have an indirect object as first argument
+  earlier in the parsing
