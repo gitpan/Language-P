@@ -1,25 +1,22 @@
 Parsing:
-- scalar/array/void context
+- context handling
   - prototypes
   - splice/substr/lvalue subroutines
 - filetest
   - after filetest, foo and _ are not barewords
-  - parse using normal parsing for named unary operators,
-    and add parsing prototype
-- stashes
+- stash access through hash syntax
+- glob access through hash syntax
 - global variables/symbols (STDOUT!)
-- local variables
-- scoping
+- scoping (check if/while conditions, for loop headers, etc.)
 - do ...
-- labels
+- attributes
 - formats
-- add operator descriptor and do parse tree modifications
+- add operator descriptor and do parse tree modifications based on that
   - like: defined &foo; pipe X, Y; etc.
 - indirect method calls
   - find more corner cases
 - list slices ( ... )[ ... ]
 - test all unary/binary operator
-- anonymous sub
 - subroutine prototypes
   - declaration
   - parsing
@@ -27,10 +24,10 @@ Parsing:
       mymap { ... } 1, 2, 3
       mymap sub { ... }, 1, 2, 3
       myeval { ... }, 1 == myeval( sub { ... } ), 1
-- local()
+- local()/my()
+  - check invalid declarations
+  - check non-lvaluable expressions
 - implicit $_ in various builtins
-- parsing of loop + continue
-- scope handling of conditional/while/continue
 - handling of parse errors with recovery
 - lexical pragmas/hints
   - strictures
@@ -42,9 +39,6 @@ Parsing:
 - special treatment for glob()
 - simplify detection of <foo> vs. <foo >, avoid constructing a lexer
 - packages
-  - add subpackages to runtime
-  - when searching prototypes/definitions/variables at parse time,
-    use the correct package name
   - package handling in our()
 - parsing of nullary/unary vs. list operators
 - => auto-quoting
@@ -68,6 +62,7 @@ Parsing:
   - always a pattern after =~/!~
   - tr/// lexing/parsing
 - correct parsing of heredoc in substitutions (s//<<HEREDOC/e)
+- construct flow graph (or similar structure)
 
 Runtime:
 - integer -> float on overflow (also in parsing!)
@@ -76,7 +71,7 @@ Runtime:
 - proper handling of function return values
   - implicit return
   - context
-- encapsulate lexical lookup/closure
+- encapsulate lexical lookup/closure, for eval ""
 - better handling of sub calls
   - encapsulate enter/leave
 - proper morphing on scalar assignment
@@ -86,12 +81,36 @@ Runtime:
 - array/list/hash assignment
   - optimize lists with common assignments
   - check mixed assignments
-- garbage collection
+- garbage collection and/or reference counting
 - do file/require/use/eval string
+- stack unwinding
+  - eval/die
+  - nonlocal redo/last/next/goto
+- computed goto/next/last/redo
+- local()
+  - check code generation for all block types and
+    different cases for local() in conditions or in loop/conditional/continue
+    blocks
+  - local() ends at end of file
+  - localization of array, hash, glob, array/hash element
+  - check that when localizing a variable, it is always
+    a global/package variable
+  - magical/tied variables (probably add a localize() method to all types)
+  - localization of complex expressions (?:, lists, ...)
+  - integrate in stack unwinding
+- my()
+  - check code generation for all block types and
+    different cases for my() in conditions or in loop/conditional/continue
+    blocks
+  - my() at global scope does not end at end of file
+  - code generation for return/die/last/redo/next, ...
+  - test global my() vs. local my(), lexical arrays, hashes
+  - integrate in stack unwinding
+- objects, tie, overload
 
 Refactoring:
 - check offsets for call sequence, refactor stack handling
-- proper handling of bytecode
+- remove all globals from Toy code generator
 - replace all strings with integer constants/flags
   - move information about bultins/overridables to a separate module
     (currently in both lexer and parse-tree)
@@ -99,6 +118,10 @@ Refactoring:
   - assert unlexed tokens are relexed with the correct expectations
   - assert lex_string/lex unlex buffers do not intermingle
 - make regexp parser a full blown parser, not the hack it is;
-  add a lexer subclass for parsing patterns
+  maybe add a lexer subclass for parsing patterns
 - detect builtins that could have an indirect object as first argument
   earlier in the parsing
+- add structure to contain actions to be performed at block end,
+  and can generate code for them
+- make the top level of a file/string/... a new parse tree node
+  (or a special type of block)

@@ -1,6 +1,6 @@
 ---
 name: Language-P
-version: 0.01_01
+version: 0.01_02
 author:
   - 'Mattia Barbon <mbarbon@cpan.org>'
 abstract: parsing/compiling Perl5 code using Perl5
@@ -17,10 +17,14 @@ requires:
 provides:
   Language::P:
     file: lib/Language/P.pm
-    version: 0.01_01
+    version: 0.01_02
   Language::P::Lexer:
     file: lib/Language/P/Lexer.pm
   Language::P::ParseTree:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::AnonymousSubroutine:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::BareBlock:
     file: lib/Language/P/ParseTree.pm
   Language::P::ParseTree::BinOp:
     file: lib/Language/P/ParseTree.pm
@@ -42,6 +46,8 @@ provides:
     file: lib/Language/P/ParseTree.pm
   Language::P::ParseTree::DumpYAML:
     file: lib/Language/P/ParseTree/DumpYAML.pm
+  Language::P::ParseTree::Empty:
+    file: lib/Language/P/ParseTree.pm
   Language::P::ParseTree::For:
     file: lib/Language/P/ParseTree.pm
   Language::P::ParseTree::Foreach:
@@ -54,13 +60,19 @@ provides:
     file: lib/Language/P/ParseTree.pm
   Language::P::ParseTree::InterpolatedPattern:
     file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Jump:
+    file: lib/Language/P/ParseTree.pm
   Language::P::ParseTree::LexicalDeclaration:
     file: lib/Language/P/ParseTree.pm
   Language::P::ParseTree::LexicalSymbol:
     file: lib/Language/P/ParseTree.pm
   Language::P::ParseTree::List:
     file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::Local:
+    file: lib/Language/P/ParseTree.pm
   Language::P::ParseTree::MethodCall:
+    file: lib/Language/P/ParseTree.pm
+  Language::P::ParseTree::NamedSubroutine:
     file: lib/Language/P/ParseTree.pm
   Language::P::ParseTree::Node:
     file: lib/Language/P/ParseTree.pm
@@ -164,7 +176,7 @@ provides:
     file: lib/Language/P/Toy/Value/Typeglob.pm
   Language::P::Toy::Value::Typeglob::Body:
     file: lib/Language/P/Toy/Value/Typeglob.pm
-generated_by: Module::Build version 0.2808
+generated_by: Module::Build version 0.3
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
   version: 1.2

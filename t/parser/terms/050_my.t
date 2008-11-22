@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 4;
+use Test::More tests => 6;
 
 use lib 't/lib';
 use TestParser qw(:all);
@@ -12,7 +12,7 @@ my $foo;
 EOP
 --- !parsetree:LexicalDeclaration
 context: CXT_VOID
-declaration_type: OP_MY
+flags: DECLARATION_MY
 name: foo
 sigil: VALUE_SCALAR
 EOE
@@ -24,7 +24,7 @@ EOP
 context: CXT_VOID
 left: !parsetree:LexicalDeclaration
   context: CXT_SCALAR|CXT_LVALUE
-  declaration_type: OP_MY
+  flags: DECLARATION_MY
   name: foo
   sigil: VALUE_SCALAR
 op: OP_ASSIGN
@@ -42,12 +42,12 @@ left: !parsetree:List
   expressions:
     - !parsetree:LexicalDeclaration
       context: CXT_SCALAR|CXT_LVALUE
-      declaration_type: OP_MY
+      flags: DECLARATION_MY
       name: foo
       sigil: VALUE_SCALAR
     - !parsetree:LexicalDeclaration
       context: CXT_LIST|CXT_LVALUE
-      declaration_type: OP_MY
+      flags: DECLARATION_MY
       name: bar
       sigil: VALUE_ARRAY
 op: OP_ASSIGN
@@ -65,23 +65,59 @@ right: !parsetree:List
 EOE
 
 parse_and_diff_yaml( <<'EOP', <<'EOE' );
+my( ${foo} );
+EOP
+--- !parsetree:List
+expressions:
+  - !parsetree:LexicalDeclaration
+    context: CXT_VOID
+    flags: DECLARATION_MY
+    name: foo
+    sigil: VALUE_SCALAR
+EOE
+
+parse_and_diff_yaml( <<'EOP', <<'EOE' );
 my( ${foo}, @{b}, $x );
 EOP
 --- !parsetree:List
 expressions:
   - !parsetree:LexicalDeclaration
     context: CXT_VOID
-    declaration_type: OP_MY
+    flags: DECLARATION_MY
     name: foo
     sigil: VALUE_SCALAR
   - !parsetree:LexicalDeclaration
     context: CXT_VOID
-    declaration_type: OP_MY
+    flags: DECLARATION_MY
     name: b
     sigil: VALUE_ARRAY
   - !parsetree:LexicalDeclaration
     context: CXT_VOID
-    declaration_type: OP_MY
+    flags: DECLARATION_MY
     name: x
     sigil: VALUE_SCALAR
+EOE
+
+parse_and_diff_yaml( <<'EOP', <<'EOE' );
+my $x;
+my $x = $x;
+EOP
+--- !parsetree:LexicalDeclaration
+context: CXT_VOID 
+flags: DECLARATION_MY
+name: x
+sigil: VALUE_SCALAR
+--- !parsetree:BinOp
+context: CXT_VOID
+left: !parsetree:LexicalDeclaration
+  context: CXT_SCALAR|CXT_LVALUE
+  flags: DECLARATION_MY
+  name: x
+  sigil: VALUE_SCALAR
+op: OP_ASSIGN
+right: !parsetree:LexicalSymbol
+  context: CXT_SCALAR
+  level: 0
+  name: x
+  sigil: VALUE_SCALAR
 EOE

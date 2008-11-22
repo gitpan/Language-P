@@ -15,6 +15,8 @@ my %dispatch =
     'Language::P::ParseTree::UnOp'                   => '_unary_op',
     'Language::P::ParseTree::Parentheses'            => '_parentheses',
     'Language::P::ParseTree::Dereference'            => '_dereference',
+    'Language::P::ParseTree::Local'                  => '_local',
+    'Language::P::ParseTree::Jump'                   => '_jump',
     'Language::P::ParseTree::BinOp'                  => '_binary_op',
     'Language::P::ParseTree::Symbol'                 => '_symbol',
     'Language::P::ParseTree::Constant'               => '_noop',
@@ -26,6 +28,7 @@ my %dispatch =
     'Language::P::ParseTree::Ternary'                => '_ternary',
     'Language::P::ParseTree::Block'                  => '_block',
     'Language::P::ParseTree::Subroutine'             => '_subroutine',
+    'Language::P::ParseTree::AnonymousSubroutine'    => '_subroutine',
     'Language::P::ParseTree::SubroutineDeclaration'  => '_noop',
     'Language::P::ParseTree::QuotedString'           => '_quoted_string',
     'Language::P::ParseTree::Subscript'              => '_subscript',
@@ -37,6 +40,7 @@ my %dispatch =
     'Language::P::ParseTree::Foreach'                => '_foreach',
     'Language::P::ParseTree::For'                    => '_for',
     'Language::P::ParseTree::Package'                => '_noop',
+    'Language::P::ParseTree::Empty'                  => '_noop',
     'DEFAULT'                                        => '_noisy_noop',
     );
 
@@ -53,16 +57,16 @@ sub _noop {
 sub _noisy_noop {
     my( $self, $tree, $cxt ) = @_;
 
-    Carp::confess( "Unhandled context for ", ref( $tree ), "\n" );
+    Carp::confess( "Unhandled context for ", ref( $tree ) || $tree, "\n" );
 }
 
 sub _symbol {
     my( $self, $tree, $cxt ) = @_;
 
     if( $tree->sigil == VALUE_ARRAY || $tree->sigil == VALUE_HASH ) {
-        $tree->{context} = $cxt;
+        $tree->set_attribute( 'context', $cxt );
     } else {
-        $tree->{context} = $cxt & CXT_LIST ? _lv( CXT_SCALAR, $cxt ) : $cxt;
+        $tree->set_attribute( 'context', $cxt & CXT_LIST ? _lv( CXT_SCALAR, $cxt ) : $cxt );
     }
 }
 
@@ -77,7 +81,7 @@ sub _quoted_string {
 sub _subscript {
     my( $self, $tree, $cxt ) = @_;
 
-    $tree->{context} = $cxt;
+    $tree->set_attribute( 'context', $cxt );
 
     $self->visit( $tree->subscripted, $tree->reference ? CXT_SCALAR|CXT_VIVIFY :
                                                          CXT_LIST );
@@ -87,7 +91,7 @@ sub _subscript {
 sub _slice {
     my( $self, $tree, $cxt ) = @_;
 
-    $tree->{context} = $cxt;
+    $tree->set_attribute( 'context', $cxt );
 
     $self->visit( $tree->subscripted, $tree->reference ? CXT_SCALAR|CXT_VIVIFY :
                                                          CXT_LIST );
@@ -122,14 +126,17 @@ sub _block {
 sub _function_call {
     my( $self, $tree, $cxt ) = @_;
 
-    $tree->{context} = $cxt;
-    my $arg_cxt = $tree->function eq 'return' ? CXT_CALLER : CXT_LIST;
+    $tree->set_attribute( 'context', $cxt );
+    my $arg_cxts = $tree->runtime_context || [ CXT_LIST ];
     $self->visit( $tree->function, CXT_SCALAR ) if ref $tree->function;
 
-    # FIXME prototypes
     if( $tree->arguments ) {
+        my $arg_index = 0;
         foreach my $arg ( @{$tree->arguments} ) {
+            my $arg_cxt = $arg_index <= $#$arg_cxts ? $arg_cxts->[$arg_index] :
+                                                      $arg_cxts->[-1];
             $self->visit( $arg, $arg_cxt );
+            ++$arg_index;
         }
     }
 }
@@ -137,7 +144,7 @@ sub _function_call {
 sub _method_call {
     my( $self, $tree, $cxt ) = @_;
 
-    $tree->{context} = $cxt;
+    $tree->set_attribute( 'context', $cxt );
     $self->visit( $tree->invocant, CXT_SCALAR );
     $self->visit( $tree->method, CXT_SCALAR ) if ref $tree->method;
 
@@ -162,28 +169,41 @@ sub _builtin_indirect {
 sub _unary_op {
     my( $self, $tree, $cxt ) = @_;
 
-    $tree->{context} = $cxt;
+    $tree->set_attribute( 'context', $cxt );
     $self->visit( $tree->left, CXT_SCALAR );
 }
 
 sub _parentheses {
     my( $self, $tree, $cxt ) = @_;
 
-    $tree->{context} = $cxt;
+    $tree->set_attribute( 'context', $cxt );
     $self->visit( $tree->left, $cxt );
 }
 
 sub _dereference {
     my( $self, $tree, $cxt ) = @_;
 
-    $tree->{context} = $cxt | ( $cxt & CXT_LVALUE ? CXT_VIVIFY : 0 );
+    $tree->set_attribute( 'context', $cxt | ( $cxt & CXT_LVALUE ? CXT_VIVIFY : 0 ) );
     $self->visit( $tree->left, CXT_SCALAR );
+}
+
+sub _local {
+    my( $self, $tree, $cxt ) = @_;
+
+    $tree->set_attribute( 'context', $cxt );
+    $self->visit( $tree->left, $cxt|CXT_LVALUE );
+}
+
+sub _jump {
+    my( $self, $tree, $cxt ) = @_;
+
+    $self->visit( $tree->left, CXT_SCALAR ) if ref $tree->left;
 }
 
 sub _binary_op {
     my( $self, $tree, $cxt ) = @_;
 
-    $tree->{context} = $cxt;
+    $tree->set_attribute( 'context', $cxt );
 
     # FIXME some binary operators do not force scalar context
 
@@ -265,7 +285,7 @@ sub _subroutine {
 sub _ternary {
     my( $self, $tree, $cxt ) = @_;
 
-    $tree->{context} = $cxt;
+    $tree->set_attribute( 'context', $cxt );
 
     $self->visit( $tree->condition, CXT_SCALAR );
     $self->visit( $tree->iftrue, $cxt );
