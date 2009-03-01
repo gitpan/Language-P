@@ -1,6 +1,6 @@
 ---
 name: Language-P
-version: 0.01_02
+version: 0.01_03
 author:
   - 'Mattia Barbon <mbarbon@cpan.org>'
 abstract: parsing/compiling Perl5 code using Perl5
@@ -17,9 +17,25 @@ requires:
 provides:
   Language::P:
     file: lib/Language/P.pm
-    version: 0.01_02
+    version: 0.01_03
+  Language::P::Assembly:
+    file: lib/Language/P/Assembly.pm
+  Language::P::Assembly::Instruction:
+    file: lib/Language/P/Assembly.pm
+  Language::P::Intermediate::BasicBlock:
+    file: lib/Language/P/Intermediate/BasicBlock.pm
+  Language::P::Intermediate::Code:
+    file: lib/Language/P/Intermediate/Code.pm
+  Language::P::Intermediate::Generator:
+    file: lib/Language/P/Intermediate/Generator.pm
+  Language::P::Intermediate::Transform:
+    file: lib/Language/P/Intermediate/Transform.pm
   Language::P::Lexer:
     file: lib/Language/P/Lexer.pm
+  Language::P::Parrot::BootstrapRuntime:
+    file: lib/Language/P/Parrot/BootstrapRuntime.pm
+  Language::P::Parrot::Generator:
+    file: lib/Language/P/Parrot/Generator.pm
   Language::P::ParseTree:
     file: lib/Language/P/ParseTree.pm
   Language::P::ParseTree::AnonymousSubroutine:

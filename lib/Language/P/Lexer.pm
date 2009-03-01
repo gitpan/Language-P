@@ -5,7 +5,7 @@ use warnings;
 use base qw(Class::Accessor::Fast);
 
 __PACKAGE__->mk_ro_accessors( qw(stream buffer tokens symbol_table
-                                 file line _start_of_line
+                                 file line _start_of_line _heredoc_lexer
                                  ) );
 __PACKAGE__->mk_accessors( qw(quote) );
 
@@ -25,7 +25,7 @@ BEGIN {
        T_MINUS T_STAR T_DOLLAR T_PERCENT T_AT T_AMPERSAND T_PLUSPLUS
        T_MINUSMINUS T_ANDAND T_OROR T_ARYLEN T_ARROW T_MATCH T_NOTMATCH
        T_ANDANDLOW T_ORORLOW T_NOTLOW T_XORLOW T_CMP T_SCMP T_SSTAR T_POWER
-       T_PLUSEQUAL T_MINUSEQUAL T_STAREQUAL T_SLASHEQUAL T_LABEL
+       T_PLUSEQUAL T_MINUSEQUAL T_STAREQUAL T_SLASHEQUAL T_LABEL T_TILDE
 
        T_CLASS_START T_CLASS_END T_CLASS T_QUANTIFIER T_ASSERTION T_ALTERNATE
        T_CLGROUP
@@ -134,6 +134,7 @@ my %ops =
     '.'   => T_DOT,
     '..'  => T_DOTDOT,
     '...' => T_DOTDOTDOT,
+    '~'   => T_TILDE,
     '+'   => T_PLUS,
     '-'   => T_MINUS,
     '*'   => T_STAR,
@@ -794,14 +795,25 @@ sub _prepare_sublex_heredoc {
     }
     $end .= "\n";
 
-    my $stream = $self->stream;
+    my $lex = $self->_heredoc_lexer || $self;
     my $finished = 0;
-    while( defined( my $line = readline $stream ) ) {
-        if( $line eq $end ) {
+    if( !$lex->stream ) {
+        $_ = $lex->buffer;
+        if( $$_ =~ s/(.*)^$end//m ) {
+            $str .= $1;
             $finished = 1;
-            last;
         }
-        $str .= $line;
+    } else {
+        # if the lexer reads from a stream, it buffers at most one line,
+        # so by not using the buffer we skip the rest of the line
+        my $stream = $lex->stream;
+        while( defined( my $line = readline $stream ) ) {
+            if( $line eq $end ) {
+                $finished = 1;
+                last;
+            }
+            $str .= $line;
+        }
     }
 
     Carp::confess "EOF while looking for terminator '$end'" unless $finished;
@@ -1010,7 +1022,7 @@ sub lex {
         return [ $self->{pos}, T_FILETEST, $op, $filetest{$op} ];
     };
     # single char operators
-    $$_ =~ s/^([:;,()\?<>!=\/\\\+\-\.\|^\*%@&])//x and return [ $self->{pos}, $ops{$1}, $1 ];
+    $$_ =~ s/^([:;,()\?<>!~=\/\\\+\-\.\|^\*%@&])//x and return [ $self->{pos}, $ops{$1}, $1 ];
 
     die "Lexer error: '$$_'";
 }

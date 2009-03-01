@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 6;
+use Test::More tests => 7;
 
 use lib 't/lib';
 use TestParser qw(:all);
@@ -26,6 +26,7 @@ right: !parsetree:Substitution
     flags: FLAG_RX_GLOBAL
     op: OP_QL_S
   replacement: !parsetree:Constant
+    context: CXT_SCALAR
     flags: CONST_STRING
     value: bar
 EOE
@@ -75,6 +76,7 @@ right: !parsetree:Substitution
     flags: 0
     op: OP_QL_S
   replacement: !parsetree:Constant
+    context: CXT_SCALAR
     flags: CONST_STRING
     value: $1
 EOE
@@ -108,6 +110,7 @@ right: !parsetree:Substitution
           sigil: VALUE_SCALAR
         op: OP_ASSIGN
         right: !parsetree:Constant
+          context: CXT_SCALAR
           flags: CONST_NUMBER|NUM_INTEGER
           value: 1
       - !parsetree:LexicalSymbol
@@ -138,6 +141,7 @@ right: !parsetree:Substitution
           name: foo
           sigil: VALUE_SCALAR
   replacement: !parsetree:Constant
+    context: CXT_SCALAR
     flags: CONST_STRING
     value: bar
 EOE
@@ -163,6 +167,49 @@ right: !parsetree:Substitution
     flags: FLAG_RX_GLOBAL
     op: OP_QL_S
   replacement: !parsetree:Constant
+    context: CXT_SCALAR
     flags: CONST_STRING
     value: bar
+EOE
+
+parse_and_diff_yaml( <<'EOP', <<'EOE' );
+s/foo/substr(<<EOT, 3)/e;
+xxxbaz
+EOTi
+ EOT
+EOT
+# 1;
+EOP
+--- !parsetree:BinOp
+context: CXT_VOID
+left: !parsetree:Symbol
+  context: CXT_SCALAR
+  name: _
+  sigil: VALUE_SCALAR
+op: OP_MATCH
+right: !parsetree:Substitution
+  pattern: !parsetree:Pattern
+    components:
+      - !parsetree:Constant
+        flags: CONST_STRING
+        value: foo
+    flags: FLAG_RX_EVAL
+    op: OP_QL_S
+  replacement: !parsetree:Block
+    lines:
+      - !parsetree:FunctionCall
+        arguments:
+          - !parsetree:Constant
+            context: CXT_LIST
+            flags: CONST_STRING
+            value: "xxxbaz\nEOTi\n EOT\n"
+          - !parsetree:Constant
+            context: CXT_LIST
+            flags: CONST_NUMBER|NUM_INTEGER
+            value: 3
+        context: CXT_SCALAR
+        function: !parsetree:Symbol
+          context: CXT_SCALAR
+          name: substr
+          sigil: VALUE_SUB
 EOE
